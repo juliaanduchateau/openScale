@@ -64,6 +64,7 @@ Weight, BMI (body mass index), body water, muscle, LBM (lean body mass), body fa
 - Support for people with amputations
 - Partially or fully translated into more than 27 languages, see [weblate project site](https://hosted.weblate.org/projects/openscale/#languages) for the full list
 - Optional dark theme selectable
+- Push measurement data to InfluxDB
 
 # Privacy :lock:
 This app has no ads and requests no unnecessary permissions. The location permission is only needed to find a Bluetooth scale. Once found the permission can be revoked (or never granted if Bluetooth isn't used).
