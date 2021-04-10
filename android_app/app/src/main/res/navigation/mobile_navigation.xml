@@ -133,12 +133,21 @@
         <action
             android:id="@+id/action_nav_main_preferences_to_nav_user_preferences"
             app:destination="@id/nav_user_preferences" />
+        <action
+            android:id="@+id/action_nav_main_preferences_to_nav_influx_preferences"
+            app:destination="@id/nav_influx_preferences" />
     </fragment>
 
     <fragment
         android:id="@+id/nav_about_preferences"
         android:name="com.health.openscale.gui.preferences.AboutPreferences"
         android:label="@string/title_about">
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_influx_preferences"
+        android:name="com.health.openscale.gui.preferences.InfluxPreferences"
+        android:label="Influx">
     </fragment>
 
     <fragment

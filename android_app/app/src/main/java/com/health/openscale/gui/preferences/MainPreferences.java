@@ -124,6 +124,16 @@ public class MainPreferences extends PreferenceFragmentCompat {
                 return true;
             }
         });
+
+        final Preference prefInflux = findPreference("influx");
+        prefInflux.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                NavDirections action = MainPreferencesDirections.actionNavMainPreferencesToNavInfluxPreferences();
+                Navigation.findNavController(getActivity(), R.id.nav_host_fragment).navigate(action);
+                return true;
+            }
+        });
     }
 
     @Override

@@ -283,4 +283,15 @@
     <string name="app_intro_next_button">Next</string>
     <string name="app_intro_back_button">Back</string>
     <string name="app_intro_done_button">Done</string>
+    <string name="upload">Write to Influx</string>
+    <string name="title_server_url">Server url</string>
+    <string name="title_server_port">Server port</string>
+    <string name="title_measurement">Measurement</string>
+    <string name="title_database">Database</string>
+    <string name="title_retention_policy">Retention Policy</string>
+    <string name="title_use_authentication">Use authentication</string>
+    <string name="title_username">Username</string>
+    <string name="title_password">Password</string>
+    <string name="info_influx_success">Data upload succesful</string>
+    <string name="info_influx_fail">Data upload failed</string>
 </resources>

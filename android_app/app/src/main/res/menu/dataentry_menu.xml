@@ -29,4 +29,11 @@
         android:iconTint="#99CC00"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/uploadButton"
+        android:title="@string/upload"
+        android:icon="@drawable/ic_influxdata_logo__symbol__pool"
+        android:iconTint="#22ADF6"
+        app:showAsAction="always" />
+
 </menu>

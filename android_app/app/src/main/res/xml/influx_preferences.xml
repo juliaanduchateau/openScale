@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:defaultValue="http://192.168.0.100"
+        android:key="edit_influx_server_url"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/title_server_url"
+        app:persistent="true" />
+    <EditTextPreference
+        android:defaultValue="8086"
+        android:key="edit_influx_server_port"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/title_server_port"
+        app:persistent="true" />
+    <EditTextPreference
+        android:defaultValue="openScale"
+        android:key="edit_influx_measurement"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/title_measurement"
+        app:persistent="true" />
+    <EditTextPreference
+        android:defaultValue="scale"
+        android:key="edit_influx_database"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/title_database"
+        app:persistent="true" />
+    <EditTextPreference
+        android:defaultValue="autogen"
+        android:key="edit_influx_retention_policy"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/title_retention_policy"
+        app:persistent="true" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="check_box_auth"
+        android:title="@string/title_use_authentication"
+        app:persistent="true" />
+    <EditTextPreference
+        android:defaultValue=""
+        android:key="edit_influx_username"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/title_username"
+        android:dependency="check_box_auth"
+        app:persistent="true"  />
+    <EditTextPreference
+        android:defaultValue=""
+        android:key="edit_influx_password"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/title_password"
+        android:dependency="check_box_auth"
+        app:persistent="true" />
+</PreferenceScreen>

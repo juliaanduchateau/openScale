@@ -22,6 +22,9 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,6 +38,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
@@ -43,9 +47,14 @@ import com.health.openscale.R;
 import com.health.openscale.core.OpenScale;
 import com.health.openscale.core.datatypes.ScaleMeasurement;
 
+import org.influxdb.InfluxDB;
+import org.influxdb.InfluxDBFactory;
+import org.influxdb.dto.Point;
+
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MeasurementEntryFragment extends Fragment {
     public enum DATA_ENTRY_MODE {ADD, EDIT, VIEW};
@@ -65,6 +74,7 @@ public class MeasurementEntryFragment extends Fragment {
     private MenuItem editButton;
     private MenuItem expandButton;
     private MenuItem deleteButton;
+    private MenuItem uploadButton;
 
     private ScaleMeasurement scaleMeasurement;
     private ScaleMeasurement previousMeasurement;
@@ -166,6 +176,8 @@ public class MeasurementEntryFragment extends Fragment {
                 DrawableCompat.setTint(wrapped, Color.parseColor("#FFBB33"));
             } else if (item.getItemId() == R.id.deleteButton) {
                 DrawableCompat.setTint(wrapped, Color.parseColor("#FF4444"));
+            } else if (item.getItemId() == R.id.uploadButton) {
+                DrawableCompat.setTint(wrapped, Color.parseColor("#22ADF6"));
             }
 
             item.setIcon(wrapped);
@@ -175,6 +187,7 @@ public class MeasurementEntryFragment extends Fragment {
         editButton = menu.findItem(R.id.editButton);
         expandButton = menu.findItem(R.id.expandButton);
         deleteButton = menu.findItem(R.id.deleteButton);
+        uploadButton = menu.findItem(R.id.uploadButton);
 
         // Hide/show icons as appropriate for the view mode
         switch (mode) {
@@ -222,6 +235,10 @@ public class MeasurementEntryFragment extends Fragment {
 
             case R.id.deleteButton:
                 deleteMeasurement();
+                return true;
+
+            case R.id.uploadButton:
+                uploadMeasurement();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -293,6 +310,7 @@ public class MeasurementEntryFragment extends Fragment {
                 editButton.setVisible(true);
                 expandButton.setVisible(true);
                 deleteButton.setVisible(true);
+                uploadButton.setVisible(true);
 
                 ((LinearLayout)txtDataNr.getParent()).setVisibility(View.VISIBLE);
                 btnLeft.setVisibility(View.VISIBLE);
@@ -307,6 +325,7 @@ public class MeasurementEntryFragment extends Fragment {
                 editButton.setVisible(false);
                 expandButton.setVisible(true);
                 deleteButton.setVisible(true);
+                uploadButton.setVisible(false);
 
                 ((LinearLayout)txtDataNr.getParent()).setVisibility(View.VISIBLE);
                 btnLeft.setVisibility(View.VISIBLE);
@@ -319,6 +338,7 @@ public class MeasurementEntryFragment extends Fragment {
                 editButton.setVisible(false);
                 expandButton.setVisible(false);
                 deleteButton.setVisible(false);
+                uploadButton.setVisible(false);
 
                 ((LinearLayout)txtDataNr.getParent()).setVisibility(View.GONE);
                 break;
@@ -376,6 +396,78 @@ public class MeasurementEntryFragment extends Fragment {
         else {
             doDeleteMeasurement();
         }
+    }
+
+    private void uploadMeasurement() {
+        Handler h = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                String s;
+                if (msg.what == 1) {
+                    s = getResources().getString(R.string.info_influx_success);
+                } else {
+                    s = getResources().getString(R.string.info_influx_fail);
+                }
+
+                Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
+            }
+        };
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OpenScale openScale = OpenScale.getInstance();
+                final String serverUrl = openScale.getInfluxServerUrl() + ":" + openScale.getInfluxServerPort();
+                final String databaseName = openScale.getInfluxDatabase();
+                final String retentionPolicy = openScale.getInfluxRetentionPolicy();
+                final String measurementName = openScale.getInfluxMeasurement();
+                final String username = openScale.getInfluxUsername();
+                final String password = openScale.getInfluxPassword();
+
+                //Looper.prepare();
+                // https://github.com/influxdata/influxdb-java
+                final InfluxDB influxDB = openScale.getInfluxUseAuth() ? InfluxDBFactory.connect(serverUrl, username, password) : InfluxDBFactory.connect(serverUrl);
+
+                influxDB.setDatabase(databaseName);
+                influxDB.setRetentionPolicy(retentionPolicy);
+                try {
+                    influxDB.write(Point.measurement(measurementName)
+                            .time(scaleMeasurement.getDateTime().getTime(), TimeUnit.MILLISECONDS)
+                            .addField("biceps", scaleMeasurement.getBiceps())
+                            .addField("bone", scaleMeasurement.getBone())
+                            .addField("bmi", scaleMeasurement.getBMI(openScale.getSelectedScaleUser().getBodyHeight()))
+                            .addField("bmr", scaleMeasurement.getBMR(openScale.getSelectedScaleUser()))
+                            .addField("capiler1", scaleMeasurement.getCaliper1())
+                            .addField("caliper2", scaleMeasurement.getCaliper2())
+                            .addField("caliper3", scaleMeasurement.getCaliper3())
+                            .addField("calories", scaleMeasurement.getCalories())
+                            .addField("chest", scaleMeasurement.getChest())
+                            .addField("comment", scaleMeasurement.getComment())
+                            .addField("fat", scaleMeasurement.getFat())
+                            .addField("fatcaliper", scaleMeasurement.getFatCaliper(openScale.getSelectedScaleUser()))
+                            .addField("hip", scaleMeasurement.getHip())
+                            .addField("lbm", scaleMeasurement.getLbm())
+                            .addField("muscle", scaleMeasurement.getMuscle())
+                            .addField("neck", scaleMeasurement.getNeck())
+                            .addField("tdee", scaleMeasurement.getTDEE(openScale.getSelectedScaleUser()))
+                            .addField("thigh", scaleMeasurement.getThigh())
+                            .addField("visceralfat", scaleMeasurement.getVisceralFat())
+                            .addField("waist", scaleMeasurement.getWaist())
+                            .addField("water", scaleMeasurement.getWater())
+                            .addField("weight", scaleMeasurement.getWeight())
+                            .addField("whr", scaleMeasurement.getWHR())
+                            .addField("whtr", scaleMeasurement.getWHtR(openScale.getSelectedScaleUser().getBodyHeight()))
+                            .tag("user", openScale.getSelectedScaleUser().getUserName())
+                            .build()
+                    );
+                    h.sendEmptyMessage(1);
+                } catch (Exception e) {
+                    h.sendEmptyMessage(0);
+                } finally {
+                    influxDB.close();
+                }
+            }
+        }).start();
+
     }
 
     private void doDeleteMeasurement() {

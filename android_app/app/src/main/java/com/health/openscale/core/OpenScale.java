@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabaseCorruptException;
+import android.icu.number.Scale;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -708,5 +709,45 @@ public class OpenScale {
 
     public ScaleUserDAO getScaleUserDAO() {
         return userDAO;
+    }
+
+    public String getInfluxServerUrl() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString("edit_influx_server_url", "");
+    }
+
+    public String getInfluxServerPort() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString("edit_influx_server_port", "8086");
+    }
+
+    public String getInfluxDatabase() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString("edit_influx_database", "scale");
+    }
+
+    public boolean getInfluxUseAuth() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean("check_box_auth", false);
+    }
+
+    public String getInfluxUsername() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString("edit_influx_username", "");
+    }
+
+    public String getInfluxPassword() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString("edit_influx_password", "");
+    }
+
+    public String getInfluxRetentionPolicy() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString("edit_influx_retention_policy", "autogen");
+    }
+
+    public String getInfluxMeasurement() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getString("edit_influx_measurement", "openScale");
     }
 }
